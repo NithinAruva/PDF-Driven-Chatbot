@@ -28,7 +28,7 @@ css = '''
 bot_template = '''
 <div class="chat-message bot">
     <div class="avatar">
-        <img src="https://img.freepik.com/premium-vector/cute-robot-waving-hand-cartoon-illustration_138676-2744.jpg?w=740" style="max-height: 78px; max-width: 78px; border-radius: 50%; object-fit: cover;">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzBQYg_Kps6V2J9qSScgv_hXazFDk3Q_q_OQ&s">
     </div>
     <div class="message">{{MSG}}</div>
 </div>
@@ -37,7 +37,7 @@ bot_template = '''
 user_template = '''
 <div class="chat-message user">
     <div class="avatar">
-        <img src="https://img.freepik.com/premium-photo/asian-teenager-animation_183364-11907.jpg?w=740">
+        <img src="https://img.freepik.com/free-psd/3d-illustration-human-avatar-profile_23-2150671142.jpg">
     </div>    
     <div class="message">{{MSG}}</div>
 </div>
