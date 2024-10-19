@@ -7,10 +7,6 @@ from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-import os
-import faiss
-
-VECTORSTORE_FILE = "vectorstore.index"  
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -35,15 +31,6 @@ def get_vectorstore(text_chunks):
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 
-def load_vectorstore():
-    if os.path.exists(VECTORSTORE_FILE):
-        index = faiss.read_index(VECTORSTORE_FILE)
-        return FAISS(index)
-    return None
-
-def save_vectorstore(vectorstore):
-    faiss.write_index(vectorstore.index, VECTORSTORE_FILE)
-
 def get_conversation_chain(vectorstore):
     llm = ChatGoogleGenerativeAI(google_api_key=st.secrets["GOOGLE_API_KEY"], model="gemini-1.5-pro")
     memory = ConversationBufferMemory(
@@ -67,6 +54,8 @@ def display_chat_history():
 def main():
     st.title("PDF Driven ChatBot")
     st.write(css, unsafe_allow_html=True)
+    
+    # Sidebar for PDF Upload and Processing
     with st.sidebar:
         st.subheader("Your documents")
         pdf_docs = st.file_uploader("Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
@@ -75,24 +64,22 @@ def main():
                 raw_text = get_pdf_text(pdf_docs)
                 text_chunks = get_text_chunks(raw_text)
                 vectorstore = get_vectorstore(text_chunks)
-                save_vectorstore(vectorstore)
                 st.session_state.vectorstore = vectorstore
                 st.session_state.conversation = get_conversation_chain(vectorstore)
                 st.session_state.chat_history = []
-
+    
+    # Ensure the vectorstore is not recreated unless PDFs are reprocessed
     if "conversation" not in st.session_state:
-        vectorstore = load_vectorstore()
-        if vectorstore:
-            st.session_state.vectorstore = vectorstore
-            st.session_state.conversation = get_conversation_chain(vectorstore)
-            st.session_state.chat_history = []
-
+        st.warning("Please upload and process PDF documents to start.")
+    
+    # Display chat history if conversation exists
     if "chat_history" in st.session_state:
         display_chat_history()
 
+    # Handle user question input
     user_question = st.text_input("Ask me a question?")
 
-    if user_question:
+    if user_question and "conversation" in st.session_state:
         if not st.session_state.get('last_question') == user_question:
             handle_userinput(user_question)
             st.session_state['last_question'] = user_question
